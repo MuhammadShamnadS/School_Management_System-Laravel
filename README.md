@@ -33,3 +33,20 @@ This system supports **Admin**, **Teacher**, and **Student** roles with differen
 ---
 
 ## 📂 Project Structure
+
+    app/
+    └── Http/
+    ├── Controllers/
+    │ └── AuthController.php # Handles login & registration
+    │ └── TeacherController.php
+    │ └── StudentController.php
+    └── Middleware/
+    └── RoleMiddleware.php # Role-based access control
+    database/
+    └── migrations/ # Database schema
+    routes/
+    └── api.php # API Routes
+
+
+## Install dependencies
+    composer install
