@@ -7,10 +7,12 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    //Admin: List all students with user & teacher info
-    public function index()
+    //Admin: List all students with user & teacher info (paginated)
+    public function index(Request $request)
     {
-        return response()->json(Student::with(['user', 'assignedTeacher.user'])->get());
+        $perPage = $request->get('per_page', 10);
+        $students = Student::with(['user', 'assignedTeacher.user'])->paginate($perPage);
+        return response()->json($students);
     }
 
     //Admin: Show single student
@@ -20,15 +22,18 @@ class StudentController extends Controller
         return response()->json($student);
     }
 
-    //Admin: Update student (not creating user here)
+    //Admin: Update student
     public function update(Request $request, $id)
     {
         $student = Student::with('user')->findOrFail($id);
-
         $student->user->update($request->only(['first_name', 'last_name', 'email', 'username']));
-        $student->update($request->only(['phone', 'roll_number', 'student_class', 'date_of_birth', 'admission_date', 'status', 'assigned_teacher_id']));
-
-        return response()->json(['message' => 'Student updated successfully', 'student' => $student->load(['user', 'assignedTeacher.user'])]);
+        $student->update($request->only([
+            'phone', 'roll_number', 'student_class', 'date_of_birth', 'admission_date', 'status', 'assigned_teacher_id'
+        ]));
+        return response()->json([
+            'message' => 'Student updated successfully',
+            'student' => $student->load(['user', 'assignedTeacher.user'])
+        ]);
     }
 
     //Admin: Delete student and linked user
@@ -37,32 +42,44 @@ class StudentController extends Controller
         $student = Student::findOrFail($id);
         $student->user->delete();
         $student->delete();
-
         return response()->json(['message' => 'Student deleted successfully']);
     }
 
-    //Teacher: View only students assigned to them
-    public function myStudents(Request $request)
-{
-    $user = $request->user(); // logged-in teacher
-    $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
 
-    if (!$teacher) {
-        return response()->json(['message' => 'Teacher profile not found'], 404);
+    // Admin: View students under a specific teacher
+    public function studentsByTeacher($teacherId, Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $students = Student::with('user')
+            ->where('assigned_teacher_id', $teacherId)
+            ->paginate($perPage);
+
+        return response()->json($students);
     }
 
-    $students = \App\Models\Student::with('user')
-                ->where('assigned_teacher_id', $teacher->id)
-                ->get();
+    //Teacher: View only students assigned to them (paginated)
+    public function myStudents(Request $request)
+    {
+        $perPage = $request->get('per_page', 10);
+        $user = $request->user(); 
+        $teacher = \App\Models\Teacher::where('user_id', $user->id)->first();
 
-    return response()->json($students);
-}
+        if (!$teacher) {
+            return response()->json(['message' => 'Teacher profile not found'], 404);
+        }
+
+        $students = Student::with('user')
+            ->where('assigned_teacher_id', $teacher->id)
+            ->paginate($perPage);
+
+        return response()->json($students);
+    }
 
     //Student: View own profile
     public function myProfile(Request $request)
     {
         $user = $request->user();
-        $student = Student::with(['user', 'assignedTeacher.user'])->where('user_id', $user->id)->first();
+        $student = Student::with(['user'])->where('user_id', $user->id)->first();
 
         if (!$student) {
             return response()->json(['message' => 'Profile not found'], 404);
@@ -71,3 +88,5 @@ class StudentController extends Controller
         return response()->json($student);
     }
 }
+
+

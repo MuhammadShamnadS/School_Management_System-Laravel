@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 class TeacherController extends Controller
 {
     // Admin: List all teachers with user info
-    public function index()
+
+    public function index(Request $request)
     {
-        return response()->json(Teacher::with('user')->get());
+        $perPage = $request->get('per_page', 10);
+        $teacher = Teacher::with('user')->paginate($perPage);
+        return response()->json($teacher);
     }
 
     // Admin: Show single teacher
@@ -43,10 +46,9 @@ class TeacherController extends Controller
 
     // Teacher: View own profile
     public function myProfile(Request $request)
-    {
+    {       
         $user = $request->user();
         $teacher = Teacher::with('user')->where('user_id', $user->id)->first();
-
         if (!$teacher) {
             return response()->json(['message' => 'Profile not found'], 404);
         }
