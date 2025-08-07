@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TeacherController extends Controller
 {
@@ -27,11 +28,26 @@ class TeacherController extends Controller
     public function update(Request $request, $id)
     {
         $teacher = Teacher::with('user')->findOrFail($id);
+        $request->validate([
+        'username' => ['sometimes','min:3',Rule::unique('users', 'username')->ignore($teacher->user_id),],
+        'first_name' => ['sometimes','min:2','regex:/^[A-Za-z ]+$/',],
+        'last_name' => ['nullable','regex:/^[A-Za-z ]+$/',],
+        'email' => ['sometimes','email',Rule::unique('users', 'email')->ignore($teacher->user_id),],
+        'phone' => ['sometimes','digits:10',],
+        'employee_id'=> ['sometimes','numeric',Rule::unique('teachers', 'employee_id')->ignore($teacher->id),],        
+        'status'     => 'sometimes|in:active,inactive',
+        'subject_specialization' => 'sometimes|alpha',
+        'date_of_joining' => 'sometimes|date',
+        ]);
 
         $teacher->user->update($request->only(['first_name', 'last_name', 'email', 'username']));
         $teacher->update($request->only(['phone', 'subject_specialization', 'employee_id', 'date_of_joining', 'status']));
 
-        return response()->json(['message' => 'Teacher updated successfully', 'teacher' => $teacher->load('user')]);
+ return response()->json([
+    'message' => 'Teacher updated successfully',
+    'teacher' => $teacher->load(['user']),
+]);
+
     }
 
     // Admin: Delete teacher and linked user

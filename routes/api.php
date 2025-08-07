@@ -10,6 +10,8 @@ use App\Http\Controllers\StudentController;
 //Authentication
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
+Route::post('/refresh-token', [AuthController::class, 'refreshWithToken']);
+
 
 
 
