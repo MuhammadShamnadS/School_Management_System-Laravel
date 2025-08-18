@@ -98,7 +98,7 @@ class StudentController extends Controller
     public function myProfile(Request $request)
     {
         $user = $request->user();
-        $student = Student::with(['user'])->where('user_id', $user->id)->first();
+        $student = Student::with(['user', 'assignedTeacher.user'])->where('user_id', $user->id)->first();
 
         if (!$student) {
             return response()->json(['message' => 'Profile not found'], 404);

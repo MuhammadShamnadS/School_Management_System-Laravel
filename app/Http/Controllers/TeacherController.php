@@ -24,7 +24,7 @@ class TeacherController extends Controller
         return response()->json($teacher);
     }
 
-    // Admin: Update teacher details (not creating user here)
+    // Admin: Update teacher details
     public function update(Request $request, $id)
     {
         $teacher = Teacher::with('user')->findOrFail($id);
@@ -54,7 +54,7 @@ class TeacherController extends Controller
     public function destroy($id)
     {
         $teacher = Teacher::findOrFail($id);
-        $teacher->user->delete(); // deletes linked user
+        $teacher->user->delete();
         $teacher->delete();
 
         return response()->json(['message' => 'Teacher deleted successfully']);
