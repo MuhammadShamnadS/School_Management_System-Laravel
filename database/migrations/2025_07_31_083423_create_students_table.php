@@ -20,7 +20,7 @@ return new class extends Migration
         $table->date('date_of_birth');
         $table->date('admission_date');
         $table->enum('status', ['active', 'inactive'])->default('active');
-        $table->foreignId('assigned_teacher_id')->nullable()->constrained('teachers')->onDelete('set null'); // 🔹 FK to teachers
+        $table->foreignId('assigned_teacher_id')->nullable()->constrained('teachers')->onDelete('set null');
         $table->timestamps();
     });
 }
