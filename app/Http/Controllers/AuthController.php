@@ -151,31 +151,6 @@ public function refreshWithToken(Request $request)
         'student' => $student->load('user', 'assignedTeacher.user')
     ], 201);
 }
-    // Get logged-in user
-    public function me()
-    {
-        $user = auth()->user();
-
-        // Check based on user role
-        if ($user->role === 'teacher') {
-            $teacher = Teacher::with('user')->where('user_id', $user->id)->first();
-            return $teacher 
-                ? response()->json($teacher) 
-                : response()->json(['message' => 'Teacher profile not found'], 404);
-        }
-
-        if ($user->role === 'student') {
-            $student = Student::with('user', 'assignedTeacher.user')
-                            ->where('user_id', $user->id)->first();
-            return $student 
-                ? response()->json($student) 
-                : response()->json(['message' => 'Student profile not found'], 404);
-        }
-
-        // Default for admin
-        return response()->json($user);
-    }
-
 
     // Logout
     public function logout()

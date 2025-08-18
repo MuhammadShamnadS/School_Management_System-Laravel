@@ -1,9 +1,14 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\MessageController;
+
+
+
 
 
 
@@ -34,7 +39,21 @@ Route::middleware(['auth:api', 'role:teacher'])->group(function () {
 
 //Student Routes
 Route::middleware(['auth:api', 'role:student'])->group(function () {
-    Route::get('/me', [AuthController::class, 'me']);
     Route::get('/my-details', [StudentController::class, 'myProfile']);
 });
+
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/messages/{user}', [MessageController::class, 'index']); // history
+    Route::post('/messages', [MessageController::class, 'send']);       // send
+
+
+});
+
+
+
+
+
+
 
