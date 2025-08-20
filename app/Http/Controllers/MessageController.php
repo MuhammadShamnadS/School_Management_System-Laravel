@@ -10,6 +10,11 @@ class MessageController extends Controller
     // POST /api/messages
     public function send(Request $request)
     {
+        $receiver=User::find($request->input('receiver_id'));
+        if (!$receiver) {
+            return response()->json(['error' => 'Receiver not found'], 404);
+        }
+
         $data = $request->validate([
             'receiver_id' => 'required|exists:users,id',
             'message' => 'required|string|max:2000',
@@ -78,6 +83,4 @@ public function markAsRead(User $user)
 
     return response()->json(['success' => true]);
 }
-
-
 }

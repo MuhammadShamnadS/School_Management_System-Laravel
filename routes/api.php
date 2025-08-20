@@ -22,7 +22,7 @@ Route::post('/refresh-token', [AuthController::class, 'refreshWithToken']);
 
 
 //Admin CRUD (Teachers + Students)
-Route::middleware(['auth:api', 'role:admin'])->group(function () {
+Route::middleware(['auth:api', 'checkUserExists' , 'role:admin'])->group(function () {
 
     Route::post('/register/teacher', [AuthController::class, 'registerTeacher']);
     Route::post('/register/student', [AuthController::class, 'registerStudent']);
@@ -32,19 +32,19 @@ Route::middleware(['auth:api', 'role:admin'])->group(function () {
 });
 
 //Teacher Routes
-Route::middleware(['auth:api', 'role:teacher'])->group(function () {
+Route::middleware(['auth:api', 'checkUserExists' , 'role:teacher'])->group(function () {
     Route::get('/my-detail', [TeacherController::class, 'myProfile']); 
     Route::get('/my-students', [StudentController::class, 'myStudents']); 
 });
 
 //Student Routes
-Route::middleware(['auth:api', 'role:student'])->group(function () {
+Route::middleware(['auth:api', 'checkUserExists' , 'role:student'])->group(function () {
     Route::get('/my-details', [StudentController::class, 'myProfile']);
 });
 
 
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:api' , 'checkUserExists')->group(function () {
     Route::get('/messages/{user}', [MessageController::class, 'index']); // history
     Route::post('/messages', [MessageController::class, 'send']);       // send
 
